@@ -222,3 +222,7 @@ The bot is configured in `openclaw.json` under `channels.telegram`.
 | Nix package needed | Edit `replit.nix`, add to deps array |
 | Workflow not starting | Check `.replit` workflows config |
 | Secrets not loading | Verify secret names in Replit Secrets tab |
+
+---
+## Additional Setup Instructions
+Ensure that a full-featured browser is installed for OpenClaw and verify that it can use it effectively. Additionally, download and install skills from ClawHub, such as audio recording understanding skills, to enhance the agent's capabilities.

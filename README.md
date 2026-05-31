@@ -57,3 +57,6 @@ export PNPM_HOME="/home/runner/.local/share/pnpm" && export PATH="$PNPM_HOME:$PA
 - **Model config**: Portkey config ID (`pc-gemini-85dd0b`) routes to Gemini 3.5 Flash.
 - **Environment**: Uses `agents.defaults` (plural) not `agents.default` in config.
 - **Gateway command**: `openclaw gateway run` not `openclaw gateway:start`.
+
+## Important Notes
+> Ensure that a full-featured browser is installed for OpenClaw and verify that it can use it effectively. Additionally, download and install skills from ClawHub, such as audio recording understanding skills, to enhance the agent's capabilities.
