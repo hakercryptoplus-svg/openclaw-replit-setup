@@ -11,22 +11,25 @@ export PNPM_HOME="/home/runner/.local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
 # Install openclaw globally
-echo "[1/4] Installing openclaw..."
+echo "[1/5] Installing openclaw..."
 pnpm add -g openclaw@latest
 
 # Create config directory
-echo "[2/4] Setting up config..."
+echo "[2/5] Setting up config..."
 mkdir -p ~/.openclaw
 
-# Copy openclaw.json template (replace env var placeholders)
+# Copy config template
 cp openclaw.json.template ~/.openclaw/openclaw.json
-cp SOUL.md ~/.openclaw/SOUL.md
 
-# Copy environment docs for agent knowledge
+# Copy SOUL.md to openclaw workspace (created after first run)
+mkdir -p ~/.openclaw/workspace
+cp SOUL.md ~/.openclaw/workspace/SOUL.md
+
+# Copy environment docs
 cp REPLIT_ENVIRONMENT.md ~/.openclaw/REPLIT_ENVIRONMENT.md
 
 # Check required secrets
-echo "[3/4] Checking secrets..."
+echo "[3/5] Checking secrets..."
 missing=""
 [ -z "$PORTKEY_API_KEY" ] && missing="$missing PORTKEY_API_KEY"
 [ -z "$TELEGRAM_BOT_TOKEN" ] && missing="$missing TELEGRAM_BOT_TOKEN"
@@ -37,9 +40,19 @@ if [ -n "$missing" ]; then
     exit 1
 fi
 
-echo "[4/4] Done! OpenClaw workflow will start automatically."
+echo "[4/5] Starting gateway to initialize Telegram..."
+# Start briefly to init Telegram channel, then stop
+timeout 10 openclaw gateway run --force --allow-unconfigured 2>/dev/null || true
+
+echo "[5/5] Approving your Telegram chat ID..."
+# Approve your chat ID (send /start to bot first to get pairing code, then run:)
+# openclaw pairing approve telegram YOUR_PAIRING_CODE
+echo "If you see a pairing code in Telegram, run:"
+echo "  openclaw pairing approve telegram <YOUR_PAIRING_CODE>"
+echo ""
+echo "Done! OpenClaw workflow will start automatically."
 echo ""
 echo "To start manually:"
 echo "  export PNPM_HOME=\"/home/runner/.local/share/pnpm\""
-echo "  export PATH=\"\$PNPM_HOME:\$PATH\""
+echo "  export PATH=\"$PNPM_HOME:$PATH\""
 echo "  openclaw gateway run --force --allow-unconfigured"
