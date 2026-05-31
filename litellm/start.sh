@@ -9,5 +9,5 @@ exec env -u DATABASE_URL -u PGDATABASE -u PGHOST -u PGPORT -u PGUSER -u PGPASSWO
   /home/runner/workspace/.pythonlibs/bin/litellm \
   --config /tmp/litellm_config.yaml \
   --port 4000 \
-  --host 0.0.0.0 \
+  --host 127.0.0.1 \
   --num_workers 1
