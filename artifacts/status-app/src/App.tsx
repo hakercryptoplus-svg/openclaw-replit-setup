@@ -130,7 +130,7 @@ export default function App() {
             <code style={{
               background: "#1e2b45", color: "#93c5fd",
               padding: "4px 10px", borderRadius: 6, fontSize: 13,
-            }}>gemini-3.5-flash</code>
+            }}>gemini-2.5-flash</code>
           </div>
           <div style={{ textAlign: "left" }}>
             <div style={{ color: "#64748b", fontSize: 12, marginBottom: 4 }}>مفاتيح API</div>
