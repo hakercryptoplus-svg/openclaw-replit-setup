@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate LiteLLM config.yaml for gemini-3.5-flash round-robin.
+Generate LiteLLM config.yaml for gemini-2.0-flash round-robin.
 Uses Google AI Studio OpenAI-compatible endpoint (not Vertex AI).
 """
 import os
@@ -26,9 +26,9 @@ for name in KEY_NAMES:
     key = os.environ.get(name, "").strip()
     if key:
         model_list.append({
-            "model_name": "gemini-3.5-flash",
+            "model_name": "gemini-2.0-flash",
             "litellm_params": {
-                "model": "openai/gemini-3.5-flash",
+                "model": "openai/gemini-2.0-flash",
                 "api_key": key,
                 "api_base": GOOGLE_AI_STUDIO_BASE,
             }
