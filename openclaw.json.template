@@ -1,14 +1,17 @@
 {
   "models": {
     "providers": {
-      "litellm": {
-        "baseUrl": "http://127.0.0.1:4000/v1",
-        "apiKey": "sk-litellm-local",
+      "portkey": {
+        "baseUrl": "https://api.portkey.ai/v1",
+        "apiKey": "y51moYEhwp742RUoW4cN1kQYtoUg",
         "api": "openai-completions",
+        "defaultHeaders": {
+          "x-portkey-virtual-key": "google-key-1-8f8529"
+        },
         "models": [
           {
             "id": "gemini-3.5-flash",
-            "name": "Gemini 3.5 Flash (LiteLLM round-robin)",
+            "name": "Gemini 3.5 Flash (via Portkey)",
             "reasoning": false,
             "input": ["text", "image"],
             "contextWindow": 1000000,
@@ -21,7 +24,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "litellm/gemini-3.5-flash"
+        "primary": "portkey/gemini-3.5-flash"
       }
     }
   },

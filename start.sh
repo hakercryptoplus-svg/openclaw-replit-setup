@@ -1,7 +1,6 @@
 #!/bin/bash
 # OpenClaw Startup Script for Replit
 # This script starts the OpenClaw gateway with Telegram bot and Portkey/Gemini models
-
 set -e
 
 export PNPM_HOME="/home/runner/.local/share/pnpm"
@@ -15,7 +14,6 @@ fi
 
 # Check required env vars
 missing=""
-[ -z "$PORTKEY_API_KEY" ] && missing="$missing PORTKEY_API_KEY"
 [ -z "$TELEGRAM_BOT_TOKEN" ] && missing="$missing TELEGRAM_BOT_TOKEN"
 
 if [ -n "$missing" ]; then
@@ -25,7 +23,7 @@ if [ -n "$missing" ]; then
 fi
 
 echo "[openclaw] Starting OpenClaw gateway..."
-echo "[openclaw] Model: ${OPENCLAW_MODEL:-gemini-3.5-flash} via Portkey"
+echo "[openclaw] Model: gemini-3.5-flash via Portkey"
 echo "[openclaw] Telegram: enabled"
 echo "[openclaw] UI: disabled"
 
