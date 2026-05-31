@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """
 Generate LiteLLM config.yaml — routes through Portkey (load-balance across 10 Google keys).
-Model: gemini-2.5-flash  |  Portkey config: pc-clawdo-3d7b11
+Model: gemini-3.5-flash  |  Portkey config: pc-clawdo-3d7b11
 """
 import yaml
 
-PORTKEY_API_KEY = "y51moYEhwp742RUoW4cN1kQYtoUg"
-PORTKEY_CONFIG  = "pc-clawdo-3d7b11"
-PORTKEY_BASE    = "https://api.portkey.ai/v1"
+PORTKEY_API_KEY     = "y51moYEhwp742RUoW4cN1kQYtoUg"
+PORTKEY_VIRTUAL_KEY = "google-key-1-8f8529"
+PORTKEY_BASE        = "https://api.portkey.ai/v1"
 
-print("[LiteLLM] Configuring Portkey load-balance (10 Google keys) for gemini-2.5-flash")
+print("[LiteLLM] Configuring Portkey (virtual-key) for gemini-3.5-flash")
 
 config = {
     "model_list": [
         {
-            "model_name": "gemini-2.5-flash",
+            "model_name": "gemini-3.5-flash",
             "litellm_params": {
-                "model":    "openai/gemini-2.5-flash",
+                "model":    "openai/gemini-3.5-flash",
                 "api_key":  PORTKEY_API_KEY,
                 "api_base": PORTKEY_BASE,
                 "extra_headers": {
-                    "x-portkey-api-key": PORTKEY_API_KEY,
-                    "x-portkey-config":  PORTKEY_CONFIG,
+                    "x-portkey-api-key":     PORTKEY_API_KEY,
+                    "x-portkey-virtual-key": PORTKEY_VIRTUAL_KEY,
                 },
             },
         }
