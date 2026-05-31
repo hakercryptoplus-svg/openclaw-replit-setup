@@ -1,6 +1,5 @@
 #!/bin/bash
 # OpenClaw Startup Script for Replit
-# This script starts the OpenClaw gateway with Telegram bot and Portkey/Gemini models
 set -e
 
 export PNPM_HOME="/home/runner/.local/share/pnpm"
@@ -15,17 +14,45 @@ fi
 # Check required env vars
 missing=""
 [ -z "$TELEGRAM_BOT_TOKEN" ] && missing="$missing TELEGRAM_BOT_TOKEN"
-
 if [ -n "$missing" ]; then
     echo "[openclaw] ERROR: Missing required environment variables:$missing"
-    echo "[openclaw] Please set them in Replit Secrets tab."
     exit 1
 fi
 
-echo "[openclaw] Starting OpenClaw gateway..."
-echo "[openclaw] Model: gemini-3.5-flash via Portkey"
-echo "[openclaw] Telegram: enabled"
-echo "[openclaw] UI: disabled"
+echo "[openclaw] Patching config (non-destructive)..."
+CHAT_ID="${TELEGRAM_CHAT_ID:-7281928709}"
 
-# Start openclaw gateway (no UI, headless mode)
-exec openclaw gateway:start --no-ui --config /home/runner/.openclaw/openclaw.json
+# Use config patch — preserves existing keys (pairing, commands.ownerAllowFrom, etc.)
+cat > /tmp/openclaw_startup_patch.json << PATCH
+{
+  "models": {
+    "providers": {
+      "litellm": {
+        "baseUrl": "http://127.0.0.1:4000/v1",
+        "apiKey": "sk-litellm-local",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "gemini-3.5-flash",
+            "name": "Gemini 3.5 Flash",
+            "reasoning": false,
+            "input": ["text", "image"],
+            "contextWindow": 1000000,
+            "maxTokens": 64000
+          }
+        ]
+      }
+    }
+  },
+  "agents": {"defaults": {"model": {"primary": "litellm/gemini-3.5-flash"}}},
+  "channels": {"telegram": {"dmPolicy": "allowlist", "groupPolicy": "disabled", "allowFrom": [$CHAT_ID]}}
+}
+PATCH
+
+openclaw config patch --stdin < /tmp/openclaw_startup_patch.json
+
+echo "[openclaw] Starting OpenClaw gateway..."
+echo "[openclaw] Model: gemini-3.5-flash via LiteLLM → Portkey"
+echo "[openclaw] Telegram: enabled (chat ID: $CHAT_ID)"
+
+exec openclaw gateway run --force --allow-unconfigured
