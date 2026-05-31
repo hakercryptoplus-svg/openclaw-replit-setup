@@ -1,39 +1,44 @@
 #!/usr/bin/env python3
 """
 Generate LiteLLM config.yaml for gemini-3.5-flash round-robin.
-Only loads keys that pass Google's validation (not leaked/revoked).
-
-VALID keys (tested 2026-05-31): GOOGLE_API_KEY1, GOOGLE_API_KEY3, GOOGLE_API_KEY9
-LEAKED keys (reported by Google, do NOT use):
-  GOOGLE_API_KEY2,4,5,6,7,8,10,111,12,13,14,16,GOOGLE_API_KEY
+Uses Google AI Studio OpenAI-compatible endpoint (not Vertex AI).
 """
 import os
 import yaml
 
-# Only include keys confirmed valid — update this list after replacing leaked keys
-VALID_KEY_NAMES = [
+KEY_NAMES = [
     "GOOGLE_API_KEY1",
+    "GOOGLE_API_KEY2",
     "GOOGLE_API_KEY3",
+    "GOOGLE_API_KEY4",
+    "GOOGLE_API_KEY5",
+    "GOOGLE_API_KEY6",
+    "GOOGLE_API_KEY7",
+    "GOOGLE_API_KEY8",
     "GOOGLE_API_KEY9",
+    "GOOGLE_API_KEY10",
 ]
 
+GOOGLE_AI_STUDIO_BASE = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
 model_list = []
-for name in VALID_KEY_NAMES:
+for name in KEY_NAMES:
     key = os.environ.get(name, "").strip()
     if key:
         model_list.append({
             "model_name": "gemini-3.5-flash",
             "litellm_params": {
-                "model": "gemini/gemini-3.5-flash",
+                "model": "openai/gemini-3.5-flash",
                 "api_key": key,
+                "api_base": GOOGLE_AI_STUDIO_BASE,
             }
         })
 
 if not model_list:
-    print("ERROR: No valid GOOGLE_API_KEY* secrets found!")
+    print("ERROR: No GOOGLE_API_KEY* secrets found!")
     exit(1)
 
-print(f"[LiteLLM] Loaded {len(model_list)} valid API keys for round-robin")
+print(f"[LiteLLM] Loaded {len(model_list)} API keys for round-robin (AI Studio mode)")
 
 config = {
     "model_list": model_list,
