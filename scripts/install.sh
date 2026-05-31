@@ -1,58 +1,36 @@
 #!/bin/bash
-# OpenClaw Install Script for Replit
 set -e
-
-echo "=== OpenClaw Install Script ==="
-echo "OS: $(cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
-echo "Node: $(node --version)"
-
-# Setup pnpm
+echo "=== OpenClaw + LiteLLM Install ==="
 export PNPM_HOME="/home/runner/.local/share/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
-# Install openclaw globally
-echo "[1/5] Installing openclaw..."
+echo "[1/4] Installing openclaw..."
 pnpm add -g openclaw@latest
 
-# Create config directory
-echo "[2/5] Setting up config..."
-mkdir -p ~/.openclaw
+echo "[2/4] Installing LiteLLM..."
+pip install "litellm[proxy]"
 
-# Copy config template
-cp openclaw.json.template ~/.openclaw/openclaw.json
-
-# Copy SOUL.md to openclaw workspace (created after first run)
+echo "[3/4] Setting up openclaw config..."
 mkdir -p ~/.openclaw/workspace
+cp openclaw.json.template ~/.openclaw/openclaw.json
 cp SOUL.md ~/.openclaw/workspace/SOUL.md
-
-# Copy environment docs
 cp REPLIT_ENVIRONMENT.md ~/.openclaw/REPLIT_ENVIRONMENT.md
 
-# Check required secrets
-echo "[3/5] Checking secrets..."
-missing=""
-[ -z "$PORTKEY_API_KEY" ] && missing="$missing PORTKEY_API_KEY"
-[ -z "$TELEGRAM_BOT_TOKEN" ] && missing="$missing TELEGRAM_BOT_TOKEN"
+echo "[4/4] Patching openclaw: LiteLLM + Telegram allowlist..."
+# Replace YOUR_TELEGRAM_CHAT_ID_NUMBER with your actual Telegram user ID (numeric)
+CHAT_ID="${TELEGRAM_CHAT_ID:-7281928709}"
+cat > /tmp/openclaw_patch.json << PATCH
+{
+  "models": {"providers": {"litellm": {"baseUrl": "http://127.0.0.1:4000/v1","apiKey": "sk-litellm-local","api": "openai-completions","models": [{"id": "gemini-3.5-flash","name": "Gemini 3.5 Flash","reasoning": false,"input": ["text","image"],"contextWindow": 1000000,"maxTokens": 64000}]}}},
+  "agents": {"defaults": {"model": {"primary": "litellm/gemini-3.5-flash"}}},
+  "channels": {"telegram": {"dmPolicy": "allowlist","groupPolicy": "disabled","allowFrom": [$CHAT_ID]}}
+}
+PATCH
 
-if [ -n "$missing" ]; then
-    echo "ERROR: Missing secrets:$missing"
-    echo "Add them in Replit Secrets tab, then re-run."
-    exit 1
-fi
+openclaw config patch --stdin < /tmp/openclaw_patch.json
 
-echo "[4/5] Starting gateway to initialize Telegram..."
-# Start briefly to init Telegram channel, then stop
-timeout 10 openclaw gateway run --force --allow-unconfigured 2>/dev/null || true
-
-echo "[5/5] Approving your Telegram chat ID..."
-# Approve your chat ID (send /start to bot first to get pairing code, then run:)
-# openclaw pairing approve telegram YOUR_PAIRING_CODE
-echo "If you see a pairing code in Telegram, run:"
-echo "  openclaw pairing approve telegram <YOUR_PAIRING_CODE>"
 echo ""
-echo "Done! OpenClaw workflow will start automatically."
+echo "Done! Telegram allowlist set for chat ID: $CHAT_ID"
+echo "No pairing needed on restart."
 echo ""
-echo "To start manually:"
-echo "  export PNPM_HOME=\"/home/runner/.local/share/pnpm\""
-echo "  export PATH=\"$PNPM_HOME:$PATH\""
-echo "  openclaw gateway run --force --allow-unconfigured"
+echo "First run: start LiteLLM then OpenClaw (Replit workflows handle this automatically)"
